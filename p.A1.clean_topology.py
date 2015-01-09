@@ -43,5 +43,3 @@ grass.run_command("v.db.droptable", map=ogr_out, overwrite=True)
 grass.run_command("db.copy", from_table=column_map, to_table=ogr_out, overwrite=True)
 grass.run_command("v.db.connect", map=ogr_out, table=ogr_out, layer='1', overwrite=True)
 
-####New version
-
