@@ -1,34 +1,11 @@
 #!/usr/bin/env python
-#
-############################################################################
-#
-# MODULE        : p.convexity_segmentation.py
-# AUTHOR(S)     : Sanzana P. 01/12/2014
-# BASED ON  	: convexity.py Sanzana P. 10/01/2011
-#               
-# PURPOSE       : Dissolving by convexity criteria segmentation
-#               
-# COPYRIGHT     : IRSTEA-UC-UCH
-# This file is part of GeoPUMMA
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 3
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, see <http://www.gnu.org/licenses/>.
-#
-#
-#############################################################################
-#
-#
-#
+#Create new subset of polygon with a Convexity Index Threshold
+################################################
+##### Sript disolve_convex_criteria.py #########
+##### Create new sub set the convex polygons ###
+##### January 2011  ############################
+##### Autor: Psanzana ##########################
+################################################
 import sys
 import os
 import grass.script as grass
@@ -41,15 +18,17 @@ print env
 vectors = grass.read_command("g.list", type='vect')
 print vectors
 polygons=raw_input("Please enter the name of the polygon to dissolve : ")
-polygons_out=raw_input("Please enter the name of the output polygon : ")
-polygons_columns=raw_input("Please enter the name of polygon pre Triangle to get columns: ")
-#out_polygons=raw_input("Please enter the name of the output polygon : ")
-#CIT=raw_input("Please enter the Convexity Index Threshold : ")
-CIT=0.750
-A_MAX_T=10000
-MIN_A_T=500
-FF_MIN_T=0.25
-snap=0.001
+#polygons_columns=raw_input("Please enter the name of polygon pre Triangle to get columns: ")
+out_polygons=raw_input("Please enter the name of the output polygon : ")
+#FFT=raw_input("Please enter the Convexity Index Threshold : ")
+#FFT=0.250
+#FFT=0.500
+#FFT=0.750
+#FFT=0.100
+FFT=0.300
+A_MAX_T=2500
+#MIN_A_T=10
+MIN_A_T=10
 #dissolve=raw_input("Dissolve small areas: Yes (1) or Not (0): ")
 grass.run_command("g.remove",vect='new_points,new_set_disolved,out_poly_1,polygons_temp,polygons_temp_1,polygons_temp_1_table,poly_hull,polygons_total_1,polygons_total_2')
 
@@ -60,13 +39,6 @@ grass.run_command("v.db.addcol",map=polygons,col='peri double')
 grass.run_command("v.db.addcol",map=polygons,col='convexity double')
 grass.run_command("v.to.db",map=polygons,col='area',option='area')
 grass.run_command("v.to.db",map=polygons,col='peri',option='perimeter')
-
-
-#add column to identify new set of polygons
-grass.run_command("v.db.dropcol",map=polygons,col='new_set')
-grass.run_command("v.db.addcol",map=polygons,col='new_set int')
-grass.run_command("v.db.update",map=polygons,col='new_set',value='cat')
-
 
 
 #sort list the categories, without repeted values
@@ -89,7 +61,10 @@ while x<len(cat3):
 list_sorted=sorted(list)
 
 
-
+#add column to identify new set of polygons
+grass.run_command("v.db.dropcol",map=polygons,col='new_set')
+grass.run_command("v.db.addcol",map=polygons,col='new_set int')
+grass.run_command("v.db.update",map=polygons,col='new_set',value='cat')
 
 
 
@@ -194,27 +169,23 @@ for i in list_sorted:
             grass.run_command("v.dissolve",input='convex_test',output='new_set_disolved',column='id_temp',overwrite=True)
             grass.run_command("v.db.addtable",map='new_set_disolved')
             grass.run_command("v.db.addcol",map='new_set_disolved',col='peri double')
+            grass.run_command("v.db.addcol",map='new_set_disolved',col='area double')
             grass.run_command("v.to.db",map='new_set_disolved',col='peri',option='perimeter')
-            grass.run_command("g.region",vect=polygons)
-            grass.run_command("v.to.points",input='convex_test',output='new_points',overwrite=True,flags='v')
-            grass.run_command("v.hull",input='new_points',output='poly_hull',overwrite=True,flags='a')
-            grass.run_command("v.db.addtable",map='poly_hull')
-            grass.run_command("v.db.addcol",map='poly_hull',col='periH double')
-            grass.run_command("v.to.db",map='poly_hull',col='periH',option='perimeter')
-            hperi=grass.read_command("v.db.select",map='poly_hull',col='periH',flags='c')
-            hperi1=hperi.rsplit()
-            hperi2=hperi1[0]
-            hperi3=float(hperi2)
+            grass.run_command("v.to.db",map='new_set_disolved',col='area',option='area')
+            areaf=grass.read_command("v.db.select",map='new_set_disolved',col='area',flags='c')
+            areaf1=areaf.rsplit()
+            areaf2=areaf1[0]
+            areaf3=float(areaf2)
             peri=grass.read_command("v.db.select",map='new_set_disolved',col='peri',flags='c')
             peri1=peri.rsplit()
             peri2=peri1[0]
             peri3=float(peri2)
-            convexity=hperi3/peri3
-            print "####################################nueva convexidad############################"
-            print convexity
+            form_factor=16*areaf3/(peri3*peri3)
+            print "####################################nuevo factor de forma############################"
+            print form_factor
             new_area=a_max_neig_1+max1
             
-            if convexity>CIT and new_area<A_MAX_T:
+            if form_factor>FFT and new_area<A_MAX_T:
                 #actualizar poligono inicial
                 where_sql_cat_max="cat="+str(cat_max_neig_1)
                 grass.run_command("v.db.update",map='out_poly_1',col='new_set',value=aux_new_set,where=where_sql_cat_max)
@@ -256,7 +227,7 @@ for i in list_sorted:
                 grass.run_command("g.copy", vect='polygons_temp_3,polygons_temp', overwrite=True)
             
             
-            if convexity<=CIT or new_area>=A_MAX_T:
+            if form_factor<=FFT or new_area>=A_MAX_T:
                 print "convexidad no cumple"
                 where_sql_cat_max="cat="+str(aux_new_set)
                 grass.run_command("v.extract",input='polygons_temp',output='polygons_temp_4',where=where_sql_cat_max,flags='r',overwrite=True)
@@ -356,15 +327,6 @@ for i in list_sorted:
     
     grass.run_command("g.copy", vect='polygons_temp_8,out_poly_3', overwrite=True)
     
-    #add table and calculate areas
-    grass.run_command("v.db.addtable",map='polygons_temp_8')
-    grass.run_command("v.db.addcol",map='polygons_temp_8',col='area double')
-    grass.run_command("v.db.addcol",map='polygons_temp_8',col='peri double')
-    grass.run_command("v.db.addcol",map='polygons_temp_8',col='formfactor double')
-    grass.run_command("v.to.db",map='polygons_temp_8',col='area',option='area')
-    grass.run_command("v.to.db",map='polygons_temp_8',col='peri',option='perimeter')
-    grass.run_command("v.db.update",map='polygons_temp_8',col='formfactor',value='16*area/(peri*peri)')
-    
     #extract list with area value
     area_list=grass.read_command("v.db.select",map='polygons_temp_8',col='area',flags='c')
     area_list1=area_list.rsplit()
@@ -431,7 +393,6 @@ for i in list_sorted:
         while x<len(cat_neig):
             z=cat_neig[x]
             a_min_cat_neig=area_list2[cat_list2.index(z)]
-            where_sql_ff="cat="+str(z)
             if cat_neig_a_small.count(z)==0 and a_min_cat_neig<MIN_A_T: 
                 cat_neig_a_small.append(z)
             else :
@@ -572,301 +533,22 @@ for i in list_sorted:
     if os.path.exists(folder2_rm): 
         shutil.rmtree(folder2_rm)
     
-
-        
     #paste finals polygons
     if t==0:
-        copy_rule_2=poly_i+',polygons_total_1'
+        copy_rule_2='poly_dissolved_'+str(i)+',polygons_total_1'
         grass.run_command("g.copy", vect=copy_rule_2, overwrite=True)
         remove_i='poly_dissolved_'+str(i)
         grass.run_command("g.remove",vect=remove_i)
         t+=1
     if t>0:
-        patch='polygons_total_1,'+poly_i
-        print "orden de patch " + patch
-        grass.run_command("v.patch", input=patch, output='polygons_total_2', overwrite=True)
-        print "ejecute patch "
-        grass.run_command("g.copy",vect='polygons_total_2,polygons_total_1', overwrite=True)
-        remove_i='poly_dissolved_'+str(i)
+        patch='polygons_total_1,poly_dissolved_'+str(i)
+	print "orden de patch " + patch
+	grass.run_command("v.patch", input=patch, output='polygons_total_2', overwrite=True,flags='e')
+	print "ejecute patch "
+	grass.run_command("g.copy",vect='polygons_total_2,polygons_total_1', overwrite=True)
+	remove_i='poly_dissolved_'+str(i)
         grass.run_command("g.remove",vect=remove_i)
-        t+=1
+	t+=1
 
-
-##***************************************************************************************
-## limpieza
-
-
-
-ogr='polygons_total_2'
-ogr_out='polygons_total_3'
-snap=0.0001
-column_map=polygons_columns
-
-#grass.run_command("v.in.ogr", flags='ce', dsn='D:\work\grassdata\data\Chaudanne2010\ReYvan\MergeSaufTBA.shp', output='clean1', min_area='0', snap='0', overwrite=True)
-grass.run_command("v.category", input=ogr, output='clean2', type='boundary', option='add', overwrite=True)
-grass.run_command("v.extract", flags='t', input='clean2', output='clean3', type='boundary', overwrite=True)
-grass.run_command("v.type", input='clean3', output='clean4', type='boundary,line', overwrite=True)
-grass.run_command("v.clean", input='clean4', output='clean5', type='line', tool='snap,break,rmdupl', thresh=snap, overwrite=True)
-#grass.run_command("v.type", input='clean5', output='clean6', type='line,boundary', overwrite=True)
-grass.run_command("v.type", input='clean5', output='clean6', type='line,boundary', overwrite=True)
-grass.run_command("v.centroids", input='clean6', output='clean7', overwrite=True)
-grass.run_command("v.category", input='clean7', output='clean8', type='boundary', option='del', overwrite=True)
-grass.run_command("v.clean", input='clean8', output='clean9', tool='rmarea', thresh='0', overwrite=True)
-grass.run_command("v.category", input='clean9', output='clean10', option='del', type='boundary', ids='1-9999', overwrite=True)
-#grass.run_command("v.category", input='clean9', output='clean10', option='del', type='boundary', overwrite=True)
-######FALTA EXTRAER AREAS > 0 ... TAMBIEN AYUDA EN LA LIMPIEZA, SE PODRIA EVALUAR TAMBIEN EXTRAER Y REIMPORTAR.
-grass.run_command("v.build.polylines", input='clean10', output='clean11', cats='multi', overwrite=True)
-
-#To get attributes using auxiliar col b_cat
-grass.run_command("v.db.addtable", map='clean11', col='b_cat INTEGER', layer='1', overwrite=True)
-grass.run_command("v.distance", _from='clean11', from_type='centroid', from_layer='1', to=column_map, upload='cat',column='b_cat', overwrite=True)
-
-#export and import from ogr
-#grass.run_command('v.out.ogr',flags='ce',input='clean11',dsn='clean11.shp',type='area',overwrite=True)
-#grass.run_command("v.in.ogr", flags='ce', dsn='clean11.shp',output='clean12', overwrite=True)
-grass.run_command('v.db.addcol',map='clean11',columns='c_cat INT')
-grass.run_command('v.db.update', map='clean11',column='c_cat',value='b_cat')
-
-grass.run_command("v.reclass", input='clean11', output='clean12', column='c_cat', overwrite=True)
-grass.run_command("v.db.droptable", map='clean12', overwrite=True)
-#grass.run_command("db.copy", from_table='clean1', to_table=ogr_out, overwrite=True)
-#grass.run_command("db.copy", from_table=column_map, to_table=ogr_out, overwrite=True)
-#grass.run_command("v.db.connect", map=ogr_out, table=ogr_out, layer='1', overwrite=True)
-grass.run_command("db.copy", from_table=column_map, to_table='clean12', overwrite=True)
-grass.run_command("v.db.connect", map='clean12', table='clean12', layer='1', overwrite=True)
-#extract only features with category > 0
-condition="cat>0"
-grass.run_command("v.extract",input='clean12',output='clean13',where=condition,overwrite=True)
-
-#exportar e importar para limpieza topologica topologia
-grass.run_command("v.db.dropcol",map='clean13',column='cat_')
-grass.run_command("v.out.ogr",input='clean13',type='area',dsn='folder_clean',flags='ec',overwrite=True)
-
-folder2=directory+"/folder_clean/clean13.shp"
-
-grass.run_command("v.in.ogr",dsn=folder2,output=ogr_out,flags='o',overwrite=True)
-
-#deleting temporal folders
-folder2_rm=directory+"/folder_clean"
-if os.path.exists(folder2_rm): 
-    shutil.rmtree(folder2_rm)
-
-
-#exportar e importar para limpieza topologica topologia
-grass.run_command("v.db.dropcol",map=ogr_out,column='cat_')
-grass.run_command("v.out.ogr",input=ogr_out,type='area',dsn=ogr_out,flags='ec',overwrite=True)
-
-
-grass.run_command("g.remove",vect='clean1,clean2,clean3,clean4,clean5,clean6,clean7,clean8,clean9,clean10,clean11,clean12,clean13')
-
-
-
-
-##***************************************************************************************
-## limpieza
-
-
-
-
-
-
-
-
-##***************************************************************************************
-## disolucion de poligonos con mal factor de forma
-    
-    
-    
-    
-polygons_2='polygons_total_3'
-#polygons_columns=raw_input("Please enter the name of polygon pre Triangle to get columns: ")
-#out_polygons=raw_input("Please enter the name of the output polygon : ")
-#CIT=raw_input("Please enter the Convexity Index Threshold : ")
-
-
-
-
-
-#add column to identify new set of polygons
-grass.run_command("v.db.addtable",map=polygons_2)
-grass.run_command("v.db.dropcol",map=polygons_2,col='new_set')
-grass.run_command("v.db.addcol",map=polygons_2,col='new_set int')
-grass.run_command("v.db.update",map=polygons_2,col='new_set',value='cat')
-
-#add table and calculate areas
-grass.run_command("v.db.addcol",map=polygons_2,col='area double')
-grass.run_command("v.db.addcol",map=polygons_2,col='peri double')
-grass.run_command("v.db.addcol",map=polygons_2,col='formfactor double')
-grass.run_command("v.to.db",map=polygons_2,col='area',option='area')
-grass.run_command("v.to.db",map=polygons_2,col='peri',option='perimeter')
-grass.run_command("v.db.update",map=polygons_2,col='formfactor',value='16*area/(peri*peri)')
-
-
-#sort list the categories, without repeted values
-where_sql_0="formfactor<"+str(FF_MIN_T)
-category=grass.read_command("v.db.select",map=polygons_2,col='id_mesh',flags='c',where=where_sql_0)
-cat2=category.rsplit()
-cat3=sorted(map(int, cat2))
-x=0
-list=[]
-
-
-#Delete repeted values
-print cat3
-while x<len(cat3):
-    z=int(cat3[x])
-    if list.count(z)==0:
-        list.append(z)
-    else :
-        print "Repeted Value "+ str(z)
-    x+=1
-list_sorted=sorted(list)
-
-
-#extract polygons to start dissolve rule
-t=0
-for i in list_sorted:
-#for i in [2313]:
-    where_sql_1="id_mesh="+str(i)
-    grass.run_command("v.extract",input=polygons_2,output='polygons_temp_ff_1',where=where_sql_1,overwrite=True)
-    grass.run_command("v.category",input='polygons_temp_ff_1',out='polygons_temp_ff_2',layer='2',type='boundary',option='add',overwrite=True)
-    grass.run_command("v.db.addtable",map='polygons_temp_ff_2',layer='2',col='left integer,right integer')
-    grass.run_command("v.to.db", map='polygons_temp_ff_2',option='sides',col='left,right',layer='2')
-    where_sql_2="formfactor<"+str(FF_MIN_T)
-    grass.run_command("v.extract",input='polygons_temp_ff_1',output='polygons_temp_ff_3',where=where_sql_2,overwrite=True)
-    #sort list the categories, without repeted values
-    cat_ff=grass.read_command("v.db.select",map='polygons_temp_ff_3',col='cat',flags='c')
-    cat_ff2=cat_ff.rsplit()
-    cat_ff3=sorted(map(int, cat_ff2))
-    print "revisando id_mesh = "+ str(i)
-    print "categorias con ff menor a threshold"
-    print cat_ff3
-    
-    for n in cat_ff3:
-        #buscar categorias de los vecinos del area maxima
-        where_sql_left="right="+str(n)
-        neig_left=grass.read_command("v.db.select",map='polygons_temp_ff_2',col='left',flags='c',layer=2,where=where_sql_left)
-        neig_left1=map(int, neig_left.rsplit())
-        where_sql_right="left="+str(n)
-        neig_right=grass.read_command("v.db.select",map='polygons_temp_ff_2',col='right',flags='c',layer=2,where=where_sql_right)
-        neig_right1=map(int, neig_right.rsplit())
-        neig=neig_left1+neig_right1
-        print "vecinos"
-        print neig
-        #borrar de cat repetidos, con valor de  -1 y aquellos que no han sido chequeados
-        x=0
-        cat_neig=[]
-        area_neig=[]
-        #Delete repeted values
-        while x<len(neig):
-            z=neig[x]
-            if cat_neig.count(z)==0 and z!=-1:
-                cat_neig.append(z)
-                where_sql_a="cat="+str(z)               
-                a_neig=grass.read_command("v.db.select",map='polygons_temp_ff_1',col='area',flags='c',where=where_sql_a)
-                a_neig_1=a_neig.rsplit()
-                a_neig_2=float(a_neig_1[0])
-                area_neig.append(a_neig_2)
-            else :
-                print "Repeted Value "+ str(z)
-            x+=1
-        print "categorias sin -1 y repetidos"
-        print cat_neig
-        print area_neig
-        if len(cat_neig)>0:
-            max1=max(area_neig)
-            cat_max=cat_neig[area_neig.index(max1)]
-            #Actualizar
-            where_sql_cat_max="cat="+str(n)
-            grass.run_command("v.db.update",map=polygons_2,column='new_set',value=cat_max, where=where_sql_cat_max)
-            print "se ha actulizado poly con valor maximo " + str(n)
-
-grass.run_command("v.dissolve",input=polygons_2,output='new_set_disolved',column='new_set',overwrite=True)
-grass.run_command("v.db.addtable",map='new_set_disolved')
-grass.run_command("v.db.addcol",map='new_set_disolved',col='area double')
-grass.run_command("v.to.db",map='new_set_disolved',col='area',option='area')
-
- 
- 
- 
- 
- 
- 
-##***************************************************************************************
-## limpieza
-
-
-
-ogr='new_set_disolved'
-ogr_out=polygons_out
-snap=0.0001
-column_map=polygons_columns
-
-#grass.run_command("v.in.ogr", flags='ce', dsn='D:\work\grassdata\data\Chaudanne2010\ReYvan\MergeSaufTBA.shp', output='clean1', min_area='0', snap='0', overwrite=True)
-grass.run_command("v.category", input=ogr, output='clean2', type='boundary', option='add', overwrite=True)
-grass.run_command("v.extract", flags='t', input='clean2', output='clean3', type='boundary', overwrite=True)
-grass.run_command("v.type", input='clean3', output='clean4', type='boundary,line', overwrite=True)
-grass.run_command("v.clean", input='clean4', output='clean5', type='line', tool='snap,break,rmdupl', thresh=snap, overwrite=True)
-#grass.run_command("v.type", input='clean5', output='clean6', type='line,boundary', overwrite=True)
-grass.run_command("v.type", input='clean5', output='clean6', type='line,boundary', overwrite=True)
-grass.run_command("v.centroids", input='clean6', output='clean7', overwrite=True)
-grass.run_command("v.category", input='clean7', output='clean8', type='boundary', option='del', overwrite=True)
-grass.run_command("v.clean", input='clean8', output='clean9', tool='rmarea', thresh='0', overwrite=True)
-grass.run_command("v.category", input='clean9', output='clean10', option='del', type='boundary', ids='1-9999', overwrite=True)
-#grass.run_command("v.category", input='clean9', output='clean10', option='del', type='boundary', overwrite=True)
-######FALTA EXTRAER AREAS > 0 ... TAMBIEN AYUDA EN LA LIMPIEZA, SE PODRIA EVALUAR TAMBIEN EXTRAER Y REIMPORTAR.
-grass.run_command("v.build.polylines", input='clean10', output='clean11', cats='multi', overwrite=True)
-
-#To get attributes using auxiliar col b_cat
-grass.run_command("v.db.addtable", map='clean11', col='b_cat INTEGER', layer='1', overwrite=True)
-grass.run_command("v.distance", _from='clean11', from_type='centroid', from_layer='1', to=column_map, upload='cat',column='b_cat', overwrite=True)
-
-#export and import from ogr
-#grass.run_command('v.out.ogr',flags='ce',input='clean11',dsn='clean11.shp',type='area',overwrite=True)
-#grass.run_command("v.in.ogr", flags='ce', dsn='clean11.shp',output='clean12', overwrite=True)
-grass.run_command('v.db.addcol',map='clean11',columns='c_cat INT')
-grass.run_command('v.db.update', map='clean11',column='c_cat',value='b_cat')
-
-grass.run_command("v.reclass", input='clean11', output='clean12', column='c_cat', overwrite=True)
-grass.run_command("v.db.droptable", map='clean12', overwrite=True)
-#grass.run_command("db.copy", from_table='clean1', to_table=ogr_out, overwrite=True)
-#grass.run_command("db.copy", from_table=column_map, to_table=ogr_out, overwrite=True)
-#grass.run_command("v.db.connect", map=ogr_out, table=ogr_out, layer='1', overwrite=True)
-grass.run_command("db.copy", from_table=column_map, to_table='clean12', overwrite=True)
-grass.run_command("v.db.connect", map='clean12', table='clean12', layer='1', overwrite=True)
-#extract only features with category > 0
-condition="cat>0"
-grass.run_command("v.extract",input='clean12',output='clean13',where=condition,overwrite=True)
-
-#exportar e importar para limpieza topologica topologia
-grass.run_command("v.db.dropcol",map='clean13',column='cat_')
-grass.run_command("v.out.ogr",input='clean13',type='area',dsn='folder_clean',flags='ec',overwrite=True)
-
-folder2=directory+"/folder_clean/clean13.shp"
-
-grass.run_command("v.in.ogr",dsn=folder2,output=ogr_out,flags='o',overwrite=True)
-
-#deleting temporal folders
-folder2_rm=directory+"/folder_clean"
-if os.path.exists(folder2_rm): 
-    shutil.rmtree(folder2_rm)
-
-
-#exportar e importar para limpieza topologica topologia
-grass.run_command("v.db.dropcol",map=ogr_out,column='cat_')
-grass.run_command("v.out.ogr",input=ogr_out,type='area',dsn=ogr_out,flags='ec',overwrite=True)
-
-
-grass.run_command("g.remove",vect='clean1,clean2,clean3,clean4,clean5,clean6,clean7,clean8,clean9,clean10,clean11,clean12,clean13')
-
-
-
-
-
-##***************************************************************************************
-## limpieza
-
-grass.run_command("g.remove",vect='convex_test,polygons_temp_3,polygons_temp_4,polygons_temp_5,polygons_temp_6,polygons_temp_7,new_points,polygons_temp_8,new_set_disolved,polygons_temp_ff_1,out_poly_1,polygons_temp_ff_2,out_poly_3,polygons_temp_ff_3,poly_hull,polygons_total_1,polygons_temp,polygons_total_2,polygons_temp_1,polygons_total_3,polygons_temp_2')
-
-
- 
+copy_out='polygons_total_2,'+out_polygons        
+grass.run_command("g.copy",vect=copy_out, overwrite=True)                    

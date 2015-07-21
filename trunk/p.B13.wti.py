@@ -35,14 +35,14 @@ import grass.script as grass
 vectors = grass.read_command("g.list", type='vect')
 print vectors
 all_interfaces=raw_input("Please enter the name of the map with all interfaces : ")
-out_wti=raw_input("Please enter the name of the output wti : ")
-wti_v1=raw_input("Please enter the name of the wtri : ")
-columns = grass.read_command("v.info",map=wti_v1,flags='c',layer='1')
+wtri_v1=raw_input("Please enter the name of the wtri : ")
+columns = grass.read_command("v.info",map=wtri_v1,flags='c',layer='1')
 print columns
-id=raw_input("Please enter the name of the column ID with cat temp : ")
+id=raw_input("Please enter the name of the column ID of each interfaces (id_interf) : ")
+out_wti=raw_input("Please enter the name of the output wti : ")
 
-
-segment_ditch=grass.read_command("v.db.select",map=wti_v1,col='cat_temp',flags='c')
+#Identifying the list with values of id interfaces classified as part of wtri
+segment_ditch=grass.read_command("v.db.select",map=wtri_v1,col=id,flags='c')
 segm2=segment_ditch.rsplit()
 segm3=sorted(segm2)
 a=0
@@ -61,18 +61,29 @@ while x<len(segm3):
     x+=1
 list_sorted=sorted(list)
 print list_sorted
-#build all lines 
+#build all lines
+condition=" "
 for i in list_sorted:
         print "Building polyline with id number = " + str(i)
         if a==0:
-                condition="cat !="+str(i)
-                grass.run_command("v.extract",input=all_interfaces,output='wti_temp_v1',where=condition,overwrite=True)
+                print "creation of wti_temp_v1"
+                condition=condition+id+"="+str(i)+" "
+                print condition
                 a+=1
         else:
-                condition="cat !="+str(i)
-                grass.run_command("v.extract",input='wti_temp_v1',output='wti_temp_v2',where=condition,overwrite=True)
-                copy='wti_temp_v2,wti_temp_v1'
-                grass.run_command("g.copy", vect=copy, overwrite=True)
+                print "creation of wti_temp_v1"
+                condition=condition+" OR " + id+"="+str(i)+" "
+                print condition
+                
                 a+=1
+
+print "condicion final"
+print condition
+grass.run_command("v.extract",input=all_interfaces,output='wti_temp_v1',where=condition,overwrite=True,flags='r')
+
+
 copy='wti_temp_v1,'+out_wti
 grass.run_command("g.copy", vect=copy, overwrite=True)
+grass.run_command("v.db.dropcol",map=out_wti,column='cat_')
+grass.run_command("v.out.ogr", input=out_wti, layer=1, dsn=out_wti, overwrite=True)
+grass.run_command("g.remove",vect='wti_temp_v1,wti_temp_v2')
