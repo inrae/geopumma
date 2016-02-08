@@ -36,6 +36,8 @@ directory = os.getcwd()
 print directory
 import os.path
 import shutil
+import time
+
 env = grass.gisenv()
 print env
 vectors = grass.read_command("g.list", type='vect')
@@ -45,12 +47,13 @@ polygons_out=raw_input("Please enter the name of the output polygon : ")
 polygons_columns=raw_input("Please enter the name of polygon pre Triangle to get columns: ")
 #out_polygons=raw_input("Please enter the name of the output polygon : ")
 #CIT=raw_input("Please enter the Convexity Index Threshold : ")
-CIT=0.750
-A_MAX_T=10000
-MIN_A_T=500
-FF_MIN_T=0.25
+CIT=0.995
+A_MAX_T=100000000000
+MIN_A_T=3000
+FF_MIN_T=0.001
 snap=0.001
 #dissolve=raw_input("Dissolve small areas: Yes (1) or Not (0): ")
+
 grass.run_command("g.remove",vect='new_points,new_set_disolved,out_poly_1,polygons_temp,polygons_temp_1,polygons_temp_1_table,poly_hull,polygons_total_1,polygons_total_2')
 
 #add table and calculate areas
@@ -91,7 +94,8 @@ list_sorted=sorted(list)
 
 
 
-
+#iniciar contador de tiempo
+start_time=time.time()
 
 #extract polygons to start dissolve rule
 t=0
@@ -591,7 +595,8 @@ for i in list_sorted:
         grass.run_command("g.remove",vect=remove_i)
         t+=1
 
-
+end_time=time.time()
+tiempo_total=end_time - start_time
 ##***************************************************************************************
 ## limpieza
 
@@ -855,6 +860,7 @@ if os.path.exists(folder2_rm):
 #exportar e importar para limpieza topologica topologia
 grass.run_command("v.db.dropcol",map=ogr_out,column='cat_')
 grass.run_command("v.out.ogr",input=ogr_out,type='area',dsn=ogr_out,flags='ec',overwrite=True)
+print "TIEMPO TOTAL DE RUTINA  = " + str(tiempo_total)
 
 
 grass.run_command("g.remove",vect='clean1,clean2,clean3,clean4,clean5,clean6,clean7,clean8,clean9,clean10,clean11,clean12,clean13')
@@ -866,7 +872,7 @@ grass.run_command("g.remove",vect='clean1,clean2,clean3,clean4,clean5,clean6,cle
 ##***************************************************************************************
 ## limpieza
 
-grass.run_command("g.remove",vect='convex_test,polygons_temp_3,polygons_temp_4,polygons_temp_5,polygons_temp_6,polygons_temp_7,new_points,polygons_temp_8,new_set_disolved,polygons_temp_ff_1,out_poly_1,polygons_temp_ff_2,out_poly_3,polygons_temp_ff_3,poly_hull,polygons_total_1,polygons_temp,polygons_total_2,polygons_temp_1,polygons_total_3,polygons_temp_2')
+grass.run_command("g.remove",vect='convex_test,polygons_temp_3,polygons_temp_4,polygons_temp_5,polygons_temp_6,polygons_temp_7,new_points,polygons_temp_8,new_set_disolved,polygons_temp_ff_1,out_poly_1,polygons_temp_ff_2,out_poly_3,polygons_temp_ff_3,poly_hull,polygons_total_1,polygons_temp,polygons_total_2,polygons_temp_1,polygons_total_3,polygons_temp_2',quiet = True)
 
 
  
