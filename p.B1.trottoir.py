@@ -105,3 +105,5 @@ grass.run_command("v.db.update", map='temp11', layer='1', column='id_uhe', qcolu
 grass.run_command("v.to.db", map='temp11', option='area', units='meters', columns='area', overwrite=True)
 grass.run_command("g.rename", vect='temp11,trottoir', overwrite=True)
 grass.run_command("g.remove", vect='category,extract,distance,temp,temp1,temp2,temp3,temp4,temp5,temp6,temp7,temp8,temp9,temp10', overwrite=True)
+
+grass.run_command("v.out.ogr", input="trottoir", dsn=trottoir, overwrite=True)
