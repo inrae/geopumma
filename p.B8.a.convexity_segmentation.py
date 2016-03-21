@@ -2,7 +2,7 @@
 #
 ############################################################################
 #
-# MODULE        : p.convexity_segmentation.py
+# MODULE        : p.B8.a.convexity_segmentation.py
 # AUTHOR(S)     : Sanzana P. 01/12/2014
 # BASED ON  	: convexity.py Sanzana P. 10/01/2011
 #               

@@ -2,10 +2,10 @@
 #
 ############################################################################
 #
-# MODULE        : p.wtri.py
+# MODULE        : p.geo_descriptors.py
 # AUTHOR(S)     : Sanzana P. 2014
 #               
-# PURPOSE       : To identify and extract wtri from wti and river maps
+# PURPOSE       : To get database for input of width and area function
 #               
 # COPYRIGHT     : IRSTEA-UC-UCH
 # This file is part of GeoPUMMA

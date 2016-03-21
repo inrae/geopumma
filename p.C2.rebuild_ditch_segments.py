@@ -1,11 +1,35 @@
 #!/usr/bin/env python
-#This rebuild the topology and unify with a column value
+#
+############################################################################
+#
+# MODULE        : p.C2.rebuild_ditch_segments.py
+# AUTHOR(S)     : Sanzana P. 01/12/2014
+#               
+# PURPOSE       : To rebuild topology and to unify acording a particular field
+#               
+# COPYRIGHT     : IRSTEA-UC-UCH
+# This file is part of GeoPUMMA
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+#
+#
+#############################################################################
+#
+#
+#
+#
 import grass.script as grass
-#####################################################
-##### re_build_ditch_segments.py ##############################
-##### January 2011    ######################################
-##### Autor: Psanzana  #####################################
-#####################################################
 env = grass.gisenv()
 print env
 vectors = grass.read_command("g.list", type='vect')

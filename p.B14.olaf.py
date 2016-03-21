@@ -2,11 +2,11 @@
 #
 ############################################################################
 #
-# MODULE        : p.OLAF.py
+# MODULE        : p.B14.olaf.py
 # AUTHOR(S)     : Sanzana P. 01/12/2014
 # BASED ON  	: interOLAF.py Florent B. 10/01/2011
 #               
-# PURPOSE       : Identifying OLAF using information of WTI & WTRI
+# PURPOSE       : Identifying OLAF using information of WTI & WTRI and river network
 #               
 # COPYRIGHT     : IRSTEA-UC-UCH
 # This file is part of GeoPUMMA

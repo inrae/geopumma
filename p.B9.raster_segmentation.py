@@ -1,13 +1,34 @@
 #!/usr/bin/env python
-#This script segments polygons to get reclasy in groups with similar slope
+#
+############################################################################
+#
+# MODULE        : p.B9.a.raster_segmentation.py P. 01/12/2014
+#               
+# PURPOSE       : To segment polygons in groups with similar raster propierty
+#               
+# COPYRIGHT     : IRSTEA-UC-UCH
+# This file is part of GeoPUMMA
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+#
+#
+#############################################################################
+#
+#
+#
+#
 import grass.script as grass
-#########################################
-##### Sript slope_segmentation.py ##################
-##### Generate new partition of polygons with a big########
-##### Standar desviation of slope ###################
-##### January 2011    ##########################
-##### Autor: Psanzana  #########################
-#########################################
 env = grass.gisenv()
 print env
 rast = grass.read_command("g.list", type='rast')
