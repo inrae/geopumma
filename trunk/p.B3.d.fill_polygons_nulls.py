@@ -1,4 +1,33 @@
 #!/usr/bin/env python
+#
+############################################################################
+#
+# MODULE        : p.B3.d.fill_polygons_null.py
+# AUTHOR(S)     : Sanzana P. 01/06/2015
+#               
+# PURPOSE       : To fill polygons with null values in the statistic step
+#               
+# COPYRIGHT     : IRSTEA-UC-UCH
+# This file is part of GeoPUMMA
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+#
+#
+#############################################################################
+#
+#
+#
 #Fill null polygons values
 import grass.script as grass
 #####Display the mapset content#####

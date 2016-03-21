@@ -2,10 +2,10 @@
 #
 ############################################################################
 #
-# MODULE        : p.wtri.py
+# MODULE        : p.river_segm.py
 # AUTHOR(S)     : Sanzana P. 2014
 #               
-# PURPOSE       : To identify and extract wtri from wti and river maps
+# PURPOSE       : To segment river considering all interfaces boundaries
 #               
 # COPYRIGHT     : IRSTEA-UC-UCH
 # This file is part of GeoPUMMA

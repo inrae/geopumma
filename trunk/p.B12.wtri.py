@@ -42,7 +42,7 @@ wti_sql=raw_input("Please enter the name of the map with all interfaces : ")
 river=raw_input("Please enter the name of the river : ")
 columns = grass.read_command("v.info",map=river,flags='c',layer='1')
 print columns
-id_river=raw_input("Please enter the name of the id river : ")
+id_river=raw_input("Please enter the name of the id reach : ")
 min_length=raw_input("Please enter the minimum length to extract the wtri segments (5 m): ")
 out_wtri=raw_input("Please enter the name of the output wtri : ")
 

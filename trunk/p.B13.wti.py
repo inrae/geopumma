@@ -5,7 +5,7 @@
 # MODULE        : p.wtri.py
 # AUTHOR(S)     : Sanzana P. 2014
 #               
-# PURPOSE       : To identify and extract wtri from wti and river maps
+# PURPOSE       : To identify and extract wti from all interfaces
 #               
 # COPYRIGHT     : IRSTEA-UC-UCH
 # This file is part of GeoPUMMA
