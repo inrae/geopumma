@@ -1,7 +1,36 @@
 #!/usr/bin/env python
-#Clean Script
-import grass.script as grass
+#
+############################################################################
+#
+# MODULE        : p.B1.sidewalk_street.py
+# AUTHOR(S)     : Sanzana P. 01/06/2015
+# BASED ON  	: clean_ogr.py Paille Y. 01/05/2010
+#               
+# PURPOSE       : To create sidewalk and portion of street in front of each lot
+#               
+# COPYRIGHT     : IRSTEA-UC-UCH
+# This file is part of GeoPUMMA
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 3
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+#
+#
+#############################################################################
+#
+#
+#
 #####Display the mapset content#####
+import grass.script as grass
 env = grass.gisenv()
 print env
 #'''

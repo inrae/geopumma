@@ -44,6 +44,8 @@ grass.run_command("v.db.addcol", map=ditch, col="length double")
 grass.run_command("v.db.addcol", map=ditch, col="rangetot double")
 grass.run_command("v.db.addcol", map=ditch, col="meanSlope double")
 grass.run_command("v.to.db", map=ditch, col='length', option='length')
+grass.run_command("v.db.addcol", map=ditch, col="St_Height double")
+grass.run_command("v.db.addcol", map=ditch, col="En_Height double")
 list_ditch = grass.read_command("v.db.select",map=ditch,col='cat',layer='1',flags='c')
 for i in list_ditch.splitlines():
     grass.run_command("v.extract",input=ditch,output='temp_ditch',where="cat=%s"%i,overwrite=True)
@@ -62,6 +64,10 @@ for i in list_ditch.splitlines():
     height_erase2=c2+',,'
     height2=rwhat2.replace(height_erase2,'')
     height_average= round(float(height1)/2,2)+ round(float(height2)/2,2)
+    start_1=round(float(height2),2)
+    end_2=round(float(height1),2)
+    grass.run_command("v.db.update", map=ditch, col='St_Height', where="cat=%s"%i, value=start_1)
+    grass.run_command("v.db.update", map=ditch, col='En_Height', where="cat=%s"%i, value=end_2)
     grass.run_command("v.db.update", map=ditch, col='meanHeight', where="cat=%s"%i, value=height_average)
     #ramp
     rangetotal= round(float(height1)-float(height2),2)

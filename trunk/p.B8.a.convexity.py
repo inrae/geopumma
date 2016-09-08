@@ -45,16 +45,14 @@ print vectors
 polygons=raw_input("Please enter the name of the polygon to dissolve : ")
 polygons_out=raw_input("Please enter the name of the output polygon : ")
 polygons_columns=raw_input("Please enter the name of polygon pre Triangle to get columns: ")
-#out_polygons=raw_input("Please enter the name of the output polygon : ")
-#CIT=raw_input("Please enter the Convexity Index Threshold : ")
-CIT=0.995
-A_MAX_T=100000000000
-MIN_A_T=3000
-FF_MIN_T=0.001
+CIT=raw_input("Please enter the Convexity Index Threshold (0<CIT<1): ")
+A_MAX_T=raw_input("Please enter the maximum area to creat new polygons (Amax): ")
+MIN_A_T=raw_input("Please enter the minimum area to avoid small new polygons (Amin): ")
+FF_MIN_T=raw_input("Please enter the minimum form factor to avoid slim and thin new polygons (FFmin): ")
 snap=0.001
-#dissolve=raw_input("Dissolve small areas: Yes (1) or Not (0): ")
 
-grass.run_command("g.remove",vect='new_points,new_set_disolved,out_poly_1,polygons_temp,polygons_temp_1,polygons_temp_1_table,poly_hull,polygons_total_1,polygons_total_2')
+
+grass.run_command("g.remove",vect='new_points,new_set_disolved,out_poly_1,polygons_temp,polygons_temp_1,polygons_temp_1_table,poly_hull,polygons_total_1,polygons_total_2',flags='c')
 
 #add table and calculate areas
 grass.run_command("v.db.addtable",map=polygons)
@@ -80,7 +78,7 @@ x=0
 list=[]
 
 
-#Delete repeted values
+#delete repeted values
 print cat3
 while x<len(cat3):
     z=int(cat3[x])
@@ -94,7 +92,7 @@ list_sorted=sorted(list)
 
 
 
-#iniciar contador de tiempo
+#time duration calculator
 start_time=time.time()
 
 #extract polygons to start dissolve rule
