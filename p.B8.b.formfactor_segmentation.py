@@ -1,33 +1,11 @@
 #!/usr/bin/env python
-#
-############################################################################
-#
-# MODULE        : p.B8.b.formfactor_segmentation.py
-# AUTHOR(S)     : Sanzana P. 01/12/2014
-#               
-# PURPOSE       : Dissolving by form_factor criteria 
-#               
-# COPYRIGHT     : IRSTEA-UC-UCH
-# This file is part of GeoPUMMA
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 3
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, see <http://www.gnu.org/licenses/>.
-#
-#
-#############################################################################
-#
-#
-#
+#Create new subset of polygon with a Convexity Index Threshold
+################################################
+##### Sript disolve_convex_criteria.py #########
+##### Create new sub set the convex polygons ###
+##### January 2011  ############################
+##### Autor: Psanzana ##########################
+################################################
 import sys
 import os
 import grass.script as grass
@@ -40,18 +18,13 @@ print env
 vectors = grass.read_command("g.list", type='vect')
 print vectors
 polygons=raw_input("Please enter the name of the polygon to dissolve : ")
-#polygons_columns=raw_input("Please enter the name of polygon pre Triangle to get columns: ")
 out_polygons=raw_input("Please enter the name of the output polygon : ")
-#FFT=raw_input("Please enter the Convexity Index Threshold : ")
-#FFT=0.250
-#FFT=0.500
-#FFT=0.750
-#FFT=0.100
-FFT=0.300
-A_MAX_T=2500
-#MIN_A_T=10
+FFT_text=raw_input("Please enter the Form Factor Threshold (0.20-0.40) : ")
+FFT=float(FFT_text)
+A_MAX_T_text=raw_input("Please enter the Maximum Area (Amax rec = 20000 m2) : ")
+A_MAX_T=float(A_MAX_T_text)
 MIN_A_T=10
-#dissolve=raw_input("Dissolve small areas: Yes (1) or Not (0): ")
+
 grass.run_command("g.remove",vect='new_points,new_set_disolved,out_poly_1,polygons_temp,polygons_temp_1,polygons_temp_1_table,poly_hull,polygons_total_1,polygons_total_2')
 
 #add table and calculate areas
@@ -227,6 +200,8 @@ for i in list_sorted:
                 grass.run_command("v.category",input='polygons_temp_2',out='polygons_temp_3',layer='2',type='boundary',option='add',overwrite=True)
                 grass.run_command("v.db.addtable",map='polygons_temp_3',layer='2',col='left integer,right integer')
                 grass.run_command("v.to.db", map='polygons_temp_3',option='sides',col='left,right',layer='2')
+                grass.run_command("v.db.addcol",map='polygons_temp_3',col='area double',layer='1')
+                grass.run_command("v.to.db",map='polygons_temp_3',col='area',option='area',layer='1')
                 #extract list with area value
                 
                 #extract list with area value
@@ -573,4 +548,9 @@ for i in list_sorted:
 	t+=1
 
 copy_out='polygons_total_2,'+out_polygons        
-grass.run_command("g.copy",vect=copy_out, overwrite=True)                    
+grass.run_command("g.copy",vect=copy_out, overwrite=True)
+copy_out='polygons_total_1,'+out_polygons        
+grass.run_command("g.copy",vect=copy_out, overwrite=True)
+
+
+grass.run_command("v.out.ogr",input=out_polygons,type='area',dsn=out_polygons,flags='ec',overwrite=True)

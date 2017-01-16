@@ -43,24 +43,21 @@ env = grass.gisenv()
 print env
 vectors = grass.read_command("g.list", type='vect')
 print vectors
-rasters = grass.read_command("g.list", type='rast')
-print rasters
 
 
 '''1. importation du raster representant les zones boisees et conversion en vecteur (facultatif) '''
 '''1. import raster of wooded areas and conversion in vector (optionnal)'''
-#raster=raw_input("Please enter the name of the raster : ")
-#resolution=raw_input("Please enter the resolution of the raster : ")
-#grass.run_command("g.region", rast=raster, res=resolution, overwrite=True)
-#grass.run_command("r.to.vect", input=raster, output='zones_boisees', feature='area', overwrite=True )
+
 
 '''Determination du pourcentage de vegetation sur un type d'occupation du sol'''
 '''Determination of the percentage of vegetation on a type of land'''
 
 '''2. selection des zones recouvertes par les zones boisees'''
 '''2. select wooded areas'''
-vector=raw_input("Please enter the name of the vector to analyze: ")
-grass.run_command("v.overlay", flags='t', ainput='zones_boisees', binput=vector, output='temp', operator='and', overwrite=True)
+vector=raw_input("Please enter the name of the vector with UHE areas: ")
+zones_boisees=raw_input("Please enter the name of the vector with wooded areas: ")
+
+grass.run_command("v.overlay", flags='t', ainput=zones_boisees, binput=vector, output='temp', operator='and', overwrite=True)
 grass.run_command("v.db.addtable", map='temp', col='area double precision,b_cat INTEGER', layer='1', overwrite=True)
 
 '''2.1. suppression des zones sans surface'''
@@ -87,5 +84,7 @@ grass.run_command("v.db.addcol", map=vector+'_boise', col='area_boise double pre
 grass.run_command("v.to.db", map=vector+'_boise', column='area_boise', option='area', overwrite=True)
 grass.run_command("v.db.update", map=vector+'_boise', column='p_boise', qcolumn='(area_boise * 100) / area', overwrite=True)
 grass.run_command("v.db.dropcol", map=vector+'_boise', column='area', overwrite=True)
+copy_rule=vector+'_boise,'+zones_boisees+"_uhe"
+grass.run_command("g.copy", vect=copy_rule, overwrite=True)
 
 grass.run_command("g.remove", vect='temp,temp1,temp_select', overwrite=True)

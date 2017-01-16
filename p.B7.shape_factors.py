@@ -36,47 +36,47 @@ vectors = grass.read_command("g.list", type='vect')
 print vectors
 polygons=raw_input("Please enter the name of the polygon map : ")
 #Add new colums
-grass.run_command("v.db.addcol",map=polygons,col="AREA double")
-grass.run_command("v.db.addcol",map=polygons,col="PERIMETER double")
-grass.run_command("v.db.addcol",map=polygons,col="SOLIDITY double")
-grass.run_command("v.db.addcol",map=polygons,col="CONVEXITY double")
-grass.run_command("v.db.addcol",map=polygons,col="COMPACT double")
-grass.run_command("v.db.addcol",map=polygons,col="FORMFACTOR double")
+grass.run_command("v.db.addcol",map=polygons,col="area double")
+grass.run_command("v.db.addcol",map=polygons,col="perimeter double")
+grass.run_command("v.db.addcol",map=polygons,col="solidity double")
+grass.run_command("v.db.addcol",map=polygons,col="convexity double")
+grass.run_command("v.db.addcol",map=polygons,col="compact double")
+grass.run_command("v.db.addcol",map=polygons,col="formfactor double")
 #Calculate Area, Perimeter y Compactness with v.to.db function
-grass.run_command("v.to.db", map=polygons,option='area',col='AREA')
-grass.run_command("v.to.db", map=polygons,option='perimeter',col='PERIMETER')
-grass.run_command("v.to.db", map=polygons,option='compact',col='COMPACT')
+grass.run_command("v.to.db", map=polygons,option='area',col='area')
+grass.run_command("v.to.db", map=polygons,option='perimeter',col='perimeter')
+grass.run_command("v.to.db", map=polygons,option='compact',col='compact')
 polygons_count = grass.read_command("v.db.select",map=polygons,col='cat',flags='c')
 grass.run_command("g.region", vect=polygons)
 #Calculating solidity, convexity,roundness,formfactor
 for i in polygons_count.splitlines():
     print "WORKING ON POLYGON CAT = " + str(i)
     grass.run_command("v.extract",input=polygons,output='out_poly_1',where="cat=%s"%i,overwrite=True)
-    area=grass.read_command("v.db.select",map=polygons,col='AREA',flags='c',where="cat=%s"%i)
+    area=grass.read_command("v.db.select",map=polygons,col='area',flags='c',where="cat=%s"%i)
     area1=area.rsplit()
     area2=area1[0]
-    peri=grass.read_command("v.db.select",map=polygons,col='PERIMETER',flags='c',where="cat=%s"%i)
+    peri=grass.read_command("v.db.select",map=polygons,col='perimeter',flags='c',where="cat=%s"%i)
     peri1=peri.rsplit()
     peri2=peri1[0]
     #FORM FACTOR
     import math
     form_fact=4*4*float(area2)/(float(peri2)*float(peri2))
-    grass.run_command("v.db.update",map=polygons,col='FORMFACTOR',value=form_fact,where="cat=%s"%i)
+    grass.run_command("v.db.update",map=polygons,col='formfactor',value=form_fact,where="cat=%s"%i)
     #CONVEX HULL
     grass.run_command("g.region", vect=polygons)
     points = grass.read_command("v.to.points",input='out_poly_1',output='points_temp_0',flags='v',  overwrite=True)
     grass.run_command("v.hull", input='points_temp_0', output='out_poly_hull', overwrite=True, flags='a')
     grass.run_command("v.db.addtable",map='out_poly_hull')
-    grass.run_command("v.db.addcol",map='out_poly_hull',col="AREA double")
-    grass.run_command("v.db.addcol",map='out_poly_hull',col="PERIMETER double")
-    grass.run_command("v.to.db", map='out_poly_hull',option='area',col='AREA')
-    grass.run_command("v.to.db", map='out_poly_hull',option='perimeter',col='PERIMETER')
+    grass.run_command("v.db.addcol",map='out_poly_hull',col="area double")
+    grass.run_command("v.db.addcol",map='out_poly_hull',col="perimeter double")
+    grass.run_command("v.to.db", map='out_poly_hull',option='area',col='area')
+    grass.run_command("v.to.db", map='out_poly_hull',option='perimeter',col='perimeter')
     #Solidity and Convexity
-    harea=grass.read_command("v.db.select",map='out_poly_hull',col='AREA',flags='c')
+    harea=grass.read_command("v.db.select",map='out_poly_hull',col='area',flags='c')
     harea1=harea.rsplit()
     harea2=harea1[0]
     print "harea 2"+harea2
-    hperi=grass.read_command("v.db.select",map='out_poly_hull',col='PERIMETER',flags='c')
+    hperi=grass.read_command("v.db.select",map='out_poly_hull',col='perimeter',flags='c')
     hperi1=hperi.rsplit()
     hperi2=hperi1[0]
     print "hperi 2"+hperi2
@@ -90,16 +90,16 @@ for i in polygons_count.splitlines():
         points = grass.read_command("v.to.points",input='out_poly_1',output='points_temp_0',flags='vi',dmax='0.1',  overwrite=True)
         grass.run_command("v.hull", input='points_temp_0', output='out_poly_hull', overwrite=True, flags='a')
         grass.run_command("v.db.addtable",map='out_poly_hull')
-        grass.run_command("v.db.addcol",map='out_poly_hull',col="AREA double")
-        grass.run_command("v.db.addcol",map='out_poly_hull',col="PERIMETER double")
-        grass.run_command("v.to.db", map='out_poly_hull',option='area',col='AREA')
-        grass.run_command("v.to.db", map='out_poly_hull',option='perimeter',col='PERIMETER')
+        grass.run_command("v.db.addcol",map='out_poly_hull',col="area double")
+        grass.run_command("v.db.addcol",map='out_poly_hull',col="perimeter double")
+        grass.run_command("v.to.db", map='out_poly_hull',option='area',col='area')
+        grass.run_command("v.to.db", map='out_poly_hull',option='perimeter',col='perimeter')
         #Solidity and Convexity
-        harea=grass.read_command("v.db.select",map='out_poly_hull',col='AREA',flags='c')
+        harea=grass.read_command("v.db.select",map='out_poly_hull',col='area',flags='c')
         harea1=harea.rsplit()
         harea2=harea1[0]
         print "harea 2"+harea2
-        hperi=grass.read_command("v.db.select",map='out_poly_hull',col='PERIMETER',flags='c')
+        hperi=grass.read_command("v.db.select",map='out_poly_hull',col='perimeter',flags='c')
         hperi1=hperi.rsplit()
         hperi2=hperi1[0]
         print "hperi 2"+hperi2
@@ -108,5 +108,5 @@ for i in polygons_count.splitlines():
         print "convexity = " + str(conv)
     else:
         print conv
-    grass.run_command("v.db.update",map=polygons,col='SOLIDITY',value=soli,where="cat=%s"%i)
-    grass.run_command("v.db.update",map=polygons,col='CONVEXITY',value=conv,where="cat=%s"%i)
+    grass.run_command("v.db.update",map=polygons,col='solidity',value=soli,where="cat=%s"%i)
+    grass.run_command("v.db.update",map=polygons,col='convexity',value=conv,where="cat=%s"%i)
