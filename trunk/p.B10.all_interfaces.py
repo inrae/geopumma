@@ -164,6 +164,7 @@ grass.run_command("db.connect",driver='dbf', database='$GISDBASE/$LOCATION_NAME/
 grass.run_command("db.connect",flags='p')
 grass.run_command("db.tables",flags='p')
 grass.run_command("v.db.dropcol", map=landUseStr,layer=1,column='cat_')
-grass.run_command("v.out.ogr", input=landUseStr, type='area', layer=1, dsn=landUseStr, overwrite=True,flags='c')
+grass.run_command("v.out.ogr", input=landUseStr, layer=1,type='area', dsn=landUseStr, overwrite=True,flags='c')
+grass.run_command("v.in.ogr",dsn=interfaces_out,flags='o',type='line',output=interfaces_out,overwrite=True)
 
 

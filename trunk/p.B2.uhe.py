@@ -61,13 +61,23 @@ for i in liste_parcelles.splitlines():
     
 #'''2. ajouter les parcelles masquees et nettoyage'''
 #'''2. adding masked parcels and cleaning'''
-grass.run_command("v.overlay", flags='t', ainput='temp1', binput='parcelles_masquees', output='temp2', overwrite=True)
+
+cat_masq=grass.read_command("v.db.select",map='parcelles_masquees',col='cat',flags='c')
+if len(cat_masq)>0:
+    grass.run_command("v.overlay", flags='t', ainput='temp1', binput='parcelles_masquees', output='temp2', overwrite=True)
+if len(cat_masq)==0:
+    copy_rule="temp1,temp2"
+    grass.run_command("g.copy", vect=copy_rule, overwrite=True)
+    
 grass.run_command("v.clean", input='temp2', output='temp3', tool='rmarea', thresh='10', overwrite=True)
 
 #'''3. mettre a jour les elements geometriques avec un champs pour les identifier et un champs qui calcule la surface totale de l'UHE'''
 #'''3. updating geometrics elements with a field to identify them and a field that calculates the total area of the UHE'''
 grass.run_command("v.db.addtable", map='temp3', columns='id_uhe integer,area double precision', overwrite=True)
-grass.run_command("v.distance", _from='temp3', from_type='centroid', from_layer='1', to='parcelles', to_type='area', to_layer='1', upload='cat', column='id_uhe', overwrite=True)
-grass.run_command("v.to.db", map='temp3', option='area', units='meters', column='area', overwrite=True)
-grass.run_command("g.rename", vect='temp3,uhe', overwrite=True)
-grass.run_command("g.remove", vect='temp1,temp2', overwrite=True)    
+grass.run_command("v.distance", _from='temp3', from_type='centroid', from_layer='1', to='parcelles', to_type='area', to_layer='1', upload='to_attr', column='id_uhe',to_column='code', overwrite=True)
+grass.run_command("v.dissolve", input='temp3', output='temp4', column='id_uhe', overwrite=True)
+grass.run_command("v.db.addtable", map='temp4', col='id_uhe integer, area double precision', overwrite=True)
+grass.run_command("v.distance", _from='temp4', from_type='centroid', from_layer='1', to='parcelles', to_type='area', to_layer='1', upload='to_attr', column='id_uhe',to_column='code', overwrite=True)
+grass.run_command("v.to.db", map='temp4', option='area', units='meters', column='area', overwrite=True)
+grass.run_command("g.rename", vect='temp4,uhe', overwrite=True)
+grass.run_command("g.remove", vect='temp1,temp2,temp3', overwrite=True)    

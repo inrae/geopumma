@@ -44,6 +44,7 @@ vectors = grass.read_command("g.list", type='vect')
 print vectors
 
 occsol=raw_input("Please enter the name of the file 'cadastre' or 'occupation du sol' : ")
+filvoirie_shape=raw_input("Please enter the name of the file 'filvoirie' or 'center of the street' : ")
 
 #'''1. extraire les parcelles et la voirie'''
 #'''1. extracting parcels and road'''
@@ -97,7 +98,8 @@ grass.run_command("v.select", ainput='temp5', atype='point', binput='voirie_d', 
 
 #'''7. creer une ligne entre les points extraits et la centerline'''
 #'''7. creating a line between extracted points and centerline'''
-grass.run_command("v.distance", _from='temp6', from_type='point', to='filvoirie', to_type='line', output='distance', upload='dist', column='cat', overwrite=True)
+
+grass.run_command("v.distance", _from='temp6', from_type='point', to=filvoirie_shape, to_type='line', output='distance', upload='dist', column='cat', overwrite=True)
 grass.run_command("v.edit", map='distance', type='point', tool='delete', ids='1-99999', overwrite=True)
 
 #'''8. fusionner la voirie, la centerline de la voirie et les lignes du v.distance pour
@@ -106,6 +108,8 @@ grass.run_command("v.edit", map='distance', type='point', tool='delete', ids='1-
 grass.run_command("v.category", input='voirie_d', output='temp1', type='boundary', option='add', overwrite=True)
 grass.run_command("v.extract", input='temp1', output='temp2', type='boundary', overwrite=True)
 grass.run_command("v.type", input='temp2', output='temp3', type='boundary,line', overwrite=True)
+copy_rule=filvoirie_shape+",filvoirie"
+grass.run_command("g.copy", vect=copy_rule, overwrite=True)
 grass.run_command("v.patch", input='distance,temp3,filvoirie', output='temp4', overwrite=True)
 grass.run_command("v.clean", input='temp4', output='temp5', type='line,point', tool='snap,break,rmdupl,rmline', thresh='0.1', overwrite=True)
 grass.run_command("v.type", input='temp5', output='temp6', type='line,boundary', overwrite=True)
@@ -135,4 +139,6 @@ grass.run_command("v.to.db", map='temp11', option='area', units='meters', column
 grass.run_command("g.rename", vect='temp11,trottoir', overwrite=True)
 grass.run_command("g.remove", vect='category,extract,distance,temp,temp1,temp2,temp3,temp4,temp5,temp6,temp7,temp8,temp9,temp10', overwrite=True)
 
-grass.run_command("v.out.ogr", input="trottoir", dsn=trottoir, overwrite=True)
+
+
+grass.run_command("v.out.ogr", input="trottoir", dsn="trottoir", overwrite=True)
