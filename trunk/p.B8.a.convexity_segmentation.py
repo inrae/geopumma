@@ -3,8 +3,8 @@
 ############################################################################
 #
 # MODULE        : p.convexity_segmentation.py
-# AUTHOR(S)     : Sanzana P. 01/12/2014
-# BASED ON  	: convexity.py Sanzana P. 10/01/2011
+# AUTHOR(S)     : Sanzana P. 05/29/2017
+# BASED ON  	: convexity.py Sanzana P. 01/12/2014
 #               
 # PURPOSE       : Dissolving by convexity criteria segmentation
 #               
@@ -40,16 +40,21 @@ env = grass.gisenv()
 print env
 vectors = grass.read_command("g.list", type='vect')
 print vectors
-polygons=raw_input("Please enter the name of the polygon to dissolve : ")
+import time
+start_time=time.time()
+polygons=raw_input("Please enter the name of the polygon to dissolve (column id_mesh req.) : ")
 polygons_out=raw_input("Please enter the name of the output polygon : ")
 polygons_columns=raw_input("Please enter the name of polygon pre Triangle to get columns: ")
-CIT_text=raw_input("Please enter the Convexity Index Threshold (CIT 0.75-0.85) : ")
+CIT_text=raw_input("Please enter the Convexity Index Threshold (CIT 0.80-0.95) : ")
 CIT=float(CIT_text)
 #CIT=0.750
-A_MAX_T_text=raw_input("Please enter the Maximum Area (Amin rec = 20000 m2) : ")
+A_MAX_T_text=raw_input("Please enter the Maximum Area (Amax rec = 20000 m2) : ")
 A_MAX_T=float(A_MAX_T_text)
-#MIN_A_T=500
-FF_MIN_T_text=raw_input("Please enter the Form Factor Threshold (FFT 0.20-0.40) : ")
+MIN_A_T_text=raw_input("Please enter the Minimum Area (Amin rec = 10 m2) : ")
+MIN_A_T_OPTION=float(MIN_A_T_text)
+MAX_PIECES_text=raw_input("Please enter the Maximum Final Components for each feature (Max rec = 100) : ")
+MAX_PIECES_OPTION=1/float(MAX_PIECES_text)
+FF_MIN_T_text=raw_input("Please enter the Form Factor Threshold ot avoid creat to slim features (FFT rec =0.1) : ")
 FF_MIN_T=float(FF_MIN_T_text)
 #FF_MIN_T=0.20
 snap=0.001
@@ -118,10 +123,10 @@ for i in list_sorted:
     area_list_min1=area_list_min.rsplit()
     area_list_min2 = map(float, area_list_min1)
     
-    if area_list_min2[0]*0.01<10:
-        MIN_A_T=10
+    if area_list_min2[0]*MAX_PIECES_OPTION<MIN_A_T_OPTION:
+        MIN_A_T=MIN_A_T_OPTION
     else:
-        MIN_A_T=area_list_min2[0]*0.01
+        MIN_A_T=area_list_min2[0]*MAX_PIECES_OPTION
     
     
     
@@ -346,10 +351,10 @@ for i in list_sorted:
     area_list_min1=area_list_min.rsplit()
     area_list_min2 = map(float, area_list_min1)
     
-    if area_list_min2[0]*0.01<10:
-        MIN_A_T=10
+    if area_list_min2[0]*MAX_PIECES_OPTION<MIN_A_T_OPTION:
+        MIN_A_T=MIN_A_T_OPTION
     else:
-        MIN_A_T=area_list_min2[0]*0.01
+        MIN_A_T=area_list_min2[0]*MAX_PIECES_OPTION
     
     
     
@@ -591,6 +596,7 @@ for i in list_sorted:
     grass.run_command("v.db.addcol",map='polygons_temp_6',col='new_set int')
     grass.run_command("v.db.update",map='polygons_temp_6',column='new_set',value='cat')
     grass.run_command("g.copy", vect='polygons_temp_6,polygons_temp_7', overwrite=True)
+    #
                         
     #find neigbords polygons to boundaries in layer 2
     grass.run_command("v.category",input='polygons_temp_7',out='polygons_temp_8',layer='2',type='boundary',option='add',overwrite=True)
@@ -1127,7 +1133,13 @@ if len(category_aux)==0:
 ##***************************************************************************************
 ## limpieza
 
-#grass.run_command("g.remove",vect='convex_test,polygons_temp_3,polygons_temp_4,polygons_temp_5,polygons_temp_6,polygons_temp_7,new_points,polygons_temp_8,new_set_disolved,polygons_temp_ff_1,out_poly_1,polygons_temp_ff_2,out_poly_3,polygons_temp_ff_3,poly_hull,polygons_total_1,polygons_temp,polygons_total_2,polygons_temp_1,polygons_total_3,polygons_temp_2','out_poly_area_1','out_poly_area_1_disolved',flags='f')
+grass.run_command("g.remove",vect='convex_test,polygons_temp_3,polygons_temp_4,polygons_temp_5,polygons_temp_6,polygons_temp_7,new_points,polygons_temp_8,new_set_disolved,polygons_temp_ff_1,out_poly_1,polygons_temp_ff_2,out_poly_3,polygons_temp_ff_3,poly_hull,polygons_total_1,polygons_temp,polygons_total_2,polygons_temp_1,polygons_total_3,polygons_temp_2,out_poly_area_1,out_poly_area_1_disolved',flags='f')
 
+end_time=time.time()-start_time
 
+print str(end_time)
+archivo = open("tiempo_ejecucion_p.B8.convexity_segmentation_left_footprint.txt","w")
+a = str(end_time)
+archivo.write(str((a)))
+archivo.close()
  
